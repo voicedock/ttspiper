@@ -4,29 +4,56 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
-type ConfReader struct {
-	path string
+type DataReader struct {
+	dataDir string
 }
 
-func NewConfReader(path string) *ConfReader {
-	return &ConfReader{
-		path: path,
+func NewDataReader(dataDir string) *DataReader {
+	return &DataReader{
+		dataDir: dataDir,
 	}
 }
 
-func (r *ConfReader) ReadConfig() ([]*VoiceConf, error) {
-	var ret []*VoiceConf
-	f, err := os.Open(r.path)
-	if err != nil {
-		return nil, fmt.Errorf("failed open voice config: %w", err)
+func (d *DataReader) ReadData(voice *VoiceConf) (*VoiceData, error) {
+	ret := &VoiceData{
+		VoiceConf: voice,
+	}
+	dataPath := filepath.Join(d.dataDir, voice.Lang, voice.Speaker)
+	if _, err := os.Stat(dataPath); os.IsNotExist(err) {
+		return ret, nil
 	}
 
-	err = json.NewDecoder(f).Decode(&ret)
+	files, err := os.ReadDir(dataPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed read voice config: %w", err)
+		return ret, fmt.Errorf("failed read data directory: %w", err)
 	}
+
+	for _, v := range files {
+		if strings.HasSuffix(v.Name(), ".onnx") {
+			ret.OnnxPath = filepath.Join(dataPath, v.Name())
+		}
+
+		if strings.HasSuffix(v.Name(), ".onnx.json") {
+			ret.OnnxJsonPath = filepath.Join(dataPath, v.Name())
+		}
+	}
+
+	vSpec := &VoiceSpec{}
+	f, err := os.Open(ret.OnnxJsonPath)
+	if err != nil {
+		return ret, fmt.Errorf("failed open onnx.json: %w", err)
+	}
+
+	err = json.NewDecoder(f).Decode(&vSpec)
+	if err != nil {
+		return ret, fmt.Errorf("failed read onnx.json: %w", err)
+	}
+
+	ret.VoiceSpec = vSpec
 
 	return ret, nil
 }

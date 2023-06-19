@@ -1,18 +1,5 @@
 package config
 
-type VoiceData struct {
-	Voice     *Voice
-	VoiceSpec *VoiceSpec
-}
-
-// Voice configuration
-type Voice struct {
-	Lang        string `json:"lang"`
-	Speaker     string `json:"speaker"`
-	DownloadUrl string `json:"download_url"`
-	License     string `json:"license"`
-}
-
 // VoiceSpec voice specification
 type VoiceSpec struct {
 	Audio     VoiceSpecAudio     `json:"audio"`

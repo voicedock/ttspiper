@@ -1,5 +1,5 @@
-#ifndef TTSSIMPLELIB_H_
-#define TTSSIMPLELIB_H_
+#ifndef TTSPIPERLIB_H_
+#define TTSPIPERLIB_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,4 +19,4 @@ extern void* loadVoice(char *modelPath, char *modelConfigPath, int64_t *speakerI
 }
 #endif
 
-#endif // TTSSIMPLELIB_H_
+#endif // TTSPIPERLIB_H_

@@ -7,5 +7,3 @@ lint:
     - DEFAULT
   enum_zero_value_suffix: _INVALID
   service_suffix: API
-  ignore:
-    - validate/validate.proto

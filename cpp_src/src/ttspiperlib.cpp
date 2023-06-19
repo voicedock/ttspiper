@@ -1,4 +1,4 @@
-#include "ttssimplelib/ttssimplelib.h"
+#include "ttspiperlib/ttspiperlib.h"
 #include "piper.hpp"
 #include <vector>
 #include <string>
@@ -7,8 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef void (*textToAudioCb)(void);
 
 void terminate()
 {
@@ -47,10 +45,6 @@ void textToAudio(void* voice, char *text, int cbId)
         cppResult,
         audioCallback
     );
-//
-//    result->inferSeconds = cppResult.inferSeconds;
-//    result->audioSeconds = cppResult.audioSeconds;
-//    result->realTimeFactor = cppResult.realTimeFactor;
 }
 
 void* loadVoice(char *modelPath, char *modelConfigPath, int64_t *speakerId) {

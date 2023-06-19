@@ -2,10 +2,7 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/test/test/internal/api/grpc/gen
-  override:
-    GO_PACKAGE:
-      "validate/validate.proto": "github.com/envoyproxy/protoc-gen-validate/validate"
+    default: github.com/voicedock/ttspiper/internal/api/grpc/gen
 plugins:
   - name: go
     out: internal/api/grpc/gen
@@ -14,9 +11,4 @@ plugins:
   - name: go-grpc
     out: internal/api/grpc/gen
     opt:
-      - paths=source_relative
-  - name: validate
-    out: internal/api/grpc/gen
-    opt:
-      - lang=go
       - paths=source_relative

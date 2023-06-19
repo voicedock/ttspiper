@@ -6,18 +6,18 @@ import (
 	"os"
 )
 
-type Reader struct {
+type ConfReader struct {
 	path string
 }
 
-func NewReader(path string) *Reader {
-	return &Reader{
+func NewConfReader(path string) *ConfReader {
+	return &ConfReader{
 		path: path,
 	}
 }
 
-func (r *Reader) ReadConfig() ([]*Voice, error) {
-	var ret []*Voice
+func (r *ConfReader) ReadConfig() ([]*VoiceConf, error) {
+	var ret []*VoiceConf
 	f, err := os.Open(r.path)
 	if err != nil {
 		return nil, fmt.Errorf("failed open voice config: %w", err)

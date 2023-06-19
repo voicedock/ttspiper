@@ -10,7 +10,6 @@ option java_package = "com.voicedock.extensions.tts.v1";
 option objc_class_prefix = "VET";
 option php_namespace = "Voicedock\\Extensions\\Tts\\V1";
 
-import "validate/validate.proto";
 import "voicedock/extensions/tts/v1/tts.proto";
 
 // Text-to-speech service.
@@ -25,15 +24,11 @@ service TtsAPI {
 
 message TextToSpeechRequest {
   // Text phrase to be voiced
-  string text = 1 [
-    (validate.rules).string = {
-      min_len: 1
-    }
-  ];
+  string text = 1;
   // Language.
-  optional string lang = 2;
+  string lang = 2;
   // Speaker.
-  optional string speaker = 3;
+  string speaker = 3;
 }
 
 message TextToSpeechResponse {
