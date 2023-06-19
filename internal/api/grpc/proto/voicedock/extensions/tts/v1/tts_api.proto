@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package voicedock.extensions.tts.v1;
+
+option csharp_namespace = "Voicedock.Extensions.Tts.V1";
+option go_package = "voicedock/extensions/tts/v1;ttsv1";
+option java_multiple_files = true;
+option java_outer_classname = "TtsApiProto";
+option java_package = "com.voicedock.extensions.tts.v1";
+option objc_class_prefix = "VET";
+option php_namespace = "Voicedock\\Extensions\\Tts\\V1";
+
+import "validate/validate.proto";
+import "voicedock/extensions/tts/v1/tts.proto";
+
+// Text-to-speech service.
+service TtsAPI {
+  // Converts text to speech.
+  rpc TextToSpeech(TextToSpeechRequest) returns (stream TextToSpeechResponse);
+  // Returns available voices.
+  rpc GetVoices(GetVoicesRequest) returns (GetVoicesResponse);
+  // Downloads selected voice.
+  rpc DownloadVoice(DownloadVoiceRequest) returns (DownloadVoiceResponse);
+}
+
+message TextToSpeechRequest {
+  // Text phrase to be voiced
+  string text = 1 [
+    (validate.rules).string = {
+      min_len: 1
+    }
+  ];
+  // Language.
+  optional string lang = 2;
+  // Speaker.
+  optional string speaker = 3;
+}
+
+message TextToSpeechResponse {
+  // Raw PCM data
+  repeated int32 raw_pcm = 1;
+  // Sample rate of raw PCM data
+  int32 sample_rate = 2;
+  // Bit depth of raw PCM data
+  int32 bit_depth = 3;
+}
+
+message GetVoicesRequest { }
+
+message GetVoicesResponse {
+  repeated Voice voices = 1;
+}
+
+message DownloadVoiceRequest {
+  // Language.
+  string lang = 1;
+  // Speaker.
+  string speaker = 2;
+}
+
+message DownloadVoiceResponse { }

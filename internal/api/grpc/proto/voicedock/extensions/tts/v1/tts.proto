@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package voicedock.extensions.tts.v1;
+
+option csharp_namespace = "Voicedock.Extensions.Tts.V1";
+option go_package = "voicedock/extensions/tts/v1;ttsv1";
+option java_multiple_files = true;
+option java_outer_classname = "TtsProto";
+option java_package = "com.voicedock.extensions.tts.v1";
+option objc_class_prefix = "VET";
+option php_namespace = "Voicedock\\Extensions\\Tts\\V1";
+
+// Voice info.
+message Voice {
+  // Language code
+  string lang = 1;
+  // Speaker name
+  string speaker = 2;
+  // Is downloaded
+  bool downloaded = 3;
+  // Can be downloaded
+  bool downloadable = 4;
+  // License text to accept
+  bool license = 5;
+}
