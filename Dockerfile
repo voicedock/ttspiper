@@ -42,7 +42,7 @@ ADD cpp_src/CMakeLists.txt /build/CMakeLists.txt
 
 RUN mkdir build && cd build/ && cmake .. && make install
 
-FROM golang:1.20
+FROM golang:1.20 as gobuilder
 
 RUN apt update && apt install -y \
         g++ \
@@ -56,14 +56,29 @@ RUN apt update && apt install -y \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
-COPY --from=builder /usr/local/lib/libttspiperlib.so /usr/local/lib/
-COPY --from=builder /usr/local/include/ttspiperlib.h /usr/local/include
-COPY --from=builder /usr/lib/libespea* /usr/lib/
-COPY --from=builder /usr/share/espeak-ng-data /usr/share/espeak-ng-data
-COPY --from=builder /build/lib/Linux-x86_64/lib/libonnxruntime* /usr/local/lib/
 
 ADD . /usr/src/app
 
-RUN go build -o ./ttspiper ./cmd/ttspiper && ldconfig
+COPY --from=builder /usr/local/lib/libttspiperlib.so /usr/local/lib/
+COPY --from=builder /usr/local/include/ttspiperlib.h /usr/local/include
+COPY --from=builder /usr/lib/libespea* /usr/lib/
+COPY --from=builder /build/lib/Linux-x86_64/lib/libonnxruntime* /usr/local/lib/
 
-CMD ["sttwhisper"]
+RUN go build -o ./ttspiper ./cmd/ttspiper
+
+FROM debian:12
+
+RUN apt update && \
+    apt install -y ca-certificates && \
+    update-ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/lib/Linux-x86_64/lib/libonnxruntime* /usr/local/lib/
+COPY --from=builder /usr/lib/libespea* /usr/lib/
+COPY --from=builder /usr/local/lib/libttspiperlib.so /usr/local/lib/
+COPY --from=builder /usr/share/espeak-ng-data /usr/share/espeak-ng-data
+COPY --from=gobuilder /usr/src/app/ttspiper /usr/local/bin/ttspiper
+
+RUN ldconfig
+
+CMD ["ttspiper"]

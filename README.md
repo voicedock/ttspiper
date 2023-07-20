@@ -11,7 +11,23 @@ docker run --rm \
   -v "$(pwd)/config:/data/config" \
   -v "$(pwd)/dataset:/data/dataset" \
   -p 9997:9999 \
-  ghcr.io/voicedock/ttspiper:latest /usr/src/app/main
+  ghcr.io/voicedock/ttspiper:latest ttspiper
+```
+
+Show more options:
+```bash
+docker run --rm ghcr.io/voicedock/ttspiper ttspiper -h
+```
+```
+Usage: ttspiper [--grpcaddr GRPCADDR] [--config CONFIG] [--datadir DATADIR] [--loglevel LOGLEVEL] [--logjson]
+
+Options:
+  --grpcaddr GRPCADDR    gRPC API host:port [default: 0.0.0.0:9999, env: GRPC_ADDR]
+  --config CONFIG        configuration file for models [default: /data/config/ttspiper.json, env: CONFIG]
+  --datadir DATADIR      dataset directory [default: /data/dataset, env: DATA_DIR]
+  --loglevel LOGLEVEL    log level: debug, info, warn, error, dpanic, panic, fatal [default: info, env: LOG_LEVEL]
+  --logjson              set to true to use JSON format [env: LOG_JSON]
+  --help, -h             display this help and exit
 ```
 ## API
 See implementation in [proto file](https://github.com/voicedock/voicedock-specs/blob/main/proto/voicedock/core/tts/v1/tts_api.proto).
