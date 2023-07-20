@@ -29,7 +29,7 @@ func (d *DataReader) ReadData(voice *VoiceConf) (*VoiceData, error) {
 
 	files, err := os.ReadDir(dataPath)
 	if err != nil {
-		return ret, fmt.Errorf("failed read data directory: %w", err)
+		return ret, fmt.Errorf("failed to read data directory: %w", err)
 	}
 
 	for _, v := range files {
@@ -45,12 +45,12 @@ func (d *DataReader) ReadData(voice *VoiceConf) (*VoiceData, error) {
 	vSpec := &VoiceSpec{}
 	f, err := os.Open(ret.OnnxJsonPath)
 	if err != nil {
-		return ret, fmt.Errorf("failed open onnx.json: %w", err)
+		return ret, fmt.Errorf("failed to open onnx.json: %w", err)
 	}
 
 	err = json.NewDecoder(f).Decode(&vSpec)
 	if err != nil {
-		return ret, fmt.Errorf("failed read onnx.json: %w", err)
+		return ret, fmt.Errorf("failed to read onnx.json: %w", err)
 	}
 
 	ret.VoiceSpec = vSpec

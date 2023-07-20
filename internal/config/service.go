@@ -34,7 +34,7 @@ func NewService(
 func (s *Service) LoadConfig() error {
 	voiceConf, err := s.confReader.ReadConfig()
 	if err != nil {
-		return fmt.Errorf("failed load config: %w", err)
+		return fmt.Errorf("failed to load config: %w", err)
 	}
 
 	var cfg []*VoiceData
@@ -76,7 +76,7 @@ func (s *Service) Download(lang, speaker string) error {
 	outPath := filepath.Join(s.dataDir, lang, speaker)
 	err := s.downloader.Download(voice.VoiceConf.DownloadUrl, outPath)
 	if err != nil {
-		return fmt.Errorf("faile download voice: %w", err)
+		return fmt.Errorf("failed to download voice: %w", err)
 	}
 
 	return s.LoadConfig()

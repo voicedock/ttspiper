@@ -64,4 +64,6 @@ COPY --from=builder /build/lib/Linux-x86_64/lib/libonnxruntime* /usr/local/lib/
 
 ADD . /usr/src/app
 
-RUN go build cmd/ttspiper/main.go && ldconfig
+RUN go build -o ./ttspiper ./cmd/ttspiper && ldconfig
+
+CMD ["sttwhisper"]

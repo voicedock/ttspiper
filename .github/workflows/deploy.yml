@@ -14,7 +14,7 @@ on:
   pull_request:
 
 env:
-  IMAGE_NAME: aichatllama
+  IMAGE_NAME: ttspiper
 
 jobs:
   # Push image to GitHub Packages.
@@ -31,7 +31,6 @@ jobs:
       - name: Build image
         run: |
           docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-          docker build . --file gpu.Dockerfile --tag $IMAGE_NAME:gpu --label "runnumber=${GITHUB_RUN_ID}"
 
       - name: Log in to registry
         # This is where you will update the personal access token to GITHUB_TOKEN
@@ -50,11 +49,7 @@ jobs:
           # Use Docker `latest` tag convention
           GPU_VERSION=gpu-$VERSION
           [ "$VERSION" == "main" ] && VERSION=latest
-          [ "$GPU_VERSION" == "gpu-main" ] && GPU_VERSION=gpu
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          echo GPU_VERSION=$GPU_VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          docker tag $IMAGE_NAME:gpu $IMAGE_ID:$GPU_VERSION
-          docker push $IMAGE_ID:$GPU_VERSION

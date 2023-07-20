@@ -1,32 +1,56 @@
 package main
 
 import (
-	"fmt"
+	"github.com/alexflint/go-arg"
 	grpcapi "github.com/voicedock/ttspiper/internal/api/grpc"
-	ttsv1 "github.com/voicedock/ttspiper/internal/api/grpc/gen/voicedock/extensions/tts/v1"
+	ttsv1 "github.com/voicedock/ttspiper/internal/api/grpc/gen/voicedock/core/tts/v1"
 	"github.com/voicedock/ttspiper/internal/config"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
 )
 
+var cfg AppConfig
+var logger *zap.Logger
+
+func init() {
+	arg.MustParse(&cfg)
+	logger = initLogger(cfg.LogLevel, cfg.LogJson)
+}
+
 func main() {
-	lis, err := net.Listen("tcp", "0.0.0.0:9999")
+	defer logger.Sync()
+
+	logger.Info(
+		"Starting TTS Piper",
+		zap.String("data_dir", cfg.DataDir),
+		zap.String("config", cfg.Config),
+	)
+
+	lis, err := net.Listen("tcp", cfg.GrpcAddr)
 	if err != nil {
-		fmt.Printf("failed to listen GRPC server: %s\n", err)
+		logger.Fatal("failed to listen GRPC server", zap.Error(err))
 	}
 
-	dataDir := "/data/dataset"
 	dl := config.NewDownloader()
-	cr := config.NewConfReader("/data/config/ttspiper.json")
-	dr := config.NewDataReader(dataDir)
-	cs := config.NewService(cr, dr, dl, dataDir)
-	cs.LoadConfig()
+	cr := config.NewConfReader(cfg.Config)
+	dr := config.NewDataReader(cfg.DataDir)
+	cs := config.NewService(cr, dr, dl, cfg.DataDir)
+	err = cs.LoadConfig()
+	if err != nil {
+		logger.Fatal("failed to load configuration", zap.Error(err))
+	}
 
-	srv := grpcapi.NewServerTts(cs)
+	srv := grpcapi.NewServerTts(cs, logger)
 
 	s := grpc.NewServer()
 	ttsv1.RegisterTtsAPIServer(s, srv)
 	reflection.Register(s)
-	s.Serve(lis)
+
+	logger.Info("gRPC server listen", zap.String("addr", cfg.GrpcAddr))
+	err = s.Serve(lis)
+	if err != nil {
+		logger.Fatal("gRPC server error", zap.Error(err))
+	}
 }

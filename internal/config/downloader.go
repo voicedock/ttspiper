@@ -20,7 +20,7 @@ func NewDownloader() *Downloader {
 func (d *Downloader) Download(url, outPath string) error {
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Errorf("failed download: %w", err)
+		return fmt.Errorf("failed to download model: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -30,14 +30,14 @@ func (d *Downloader) Download(url, outPath string) error {
 func (d *Downloader) extractFile(r io.Reader, outPath string) error {
 	decompressed, err := gzip.NewReader(r)
 	if err != nil {
-		return fmt.Errorf("failed extract gzip: %w", err)
+		return fmt.Errorf("failed to extract gzip: %w", err)
 	}
 
 	tarReader := tar.NewReader(decompressed)
 
 	err = os.MkdirAll(outPath, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("failed create out directory: %w", err)
+		return fmt.Errorf("failed to create out directory: %w", err)
 	}
 
 	for {
@@ -47,7 +47,7 @@ func (d *Downloader) extractFile(r io.Reader, outPath string) error {
 		}
 
 		if err != nil {
-			return fmt.Errorf("failed untar file: %w", err)
+			return fmt.Errorf("failed to untar file: %w", err)
 		}
 
 		fullPath := filepath.Join(outPath, header.Name)
@@ -55,15 +55,15 @@ func (d *Downloader) extractFile(r io.Reader, outPath string) error {
 		switch header.Typeflag {
 		case tar.TypeDir:
 			if err := os.Mkdir(fullPath, 0755); err != nil {
-				return fmt.Errorf("failed create dir: %w", err)
+				return fmt.Errorf("failed to create dir: %w", err)
 			}
 		case tar.TypeReg:
 			outFile, err := os.Create(fullPath)
 			if err != nil {
-				return fmt.Errorf("failed create file: %w", err)
+				return fmt.Errorf("failed to create file: %w", err)
 			}
 			if _, err := io.Copy(outFile, tarReader); err != nil {
-				return fmt.Errorf("failed write file: %w", err)
+				return fmt.Errorf("failed to write file: %w", err)
 			}
 			outFile.Close()
 
