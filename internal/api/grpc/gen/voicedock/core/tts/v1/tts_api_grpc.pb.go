@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: voicedock/extensions/tts/v1/tts_api.proto
+// source: voicedock/core/tts/v1/tts_api.proto
 
 package ttsv1
 
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TtsAPI_TextToSpeech_FullMethodName  = "/voicedock.extensions.tts.v1.TtsAPI/TextToSpeech"
-	TtsAPI_GetVoices_FullMethodName     = "/voicedock.extensions.tts.v1.TtsAPI/GetVoices"
-	TtsAPI_DownloadVoice_FullMethodName = "/voicedock.extensions.tts.v1.TtsAPI/DownloadVoice"
+	TtsAPI_TextToSpeech_FullMethodName  = "/voicedock.core.tts.v1.TtsAPI/TextToSpeech"
+	TtsAPI_GetVoices_FullMethodName     = "/voicedock.core.tts.v1.TtsAPI/GetVoices"
+	TtsAPI_DownloadVoice_FullMethodName = "/voicedock.core.tts.v1.TtsAPI/DownloadVoice"
 )
 
 // TtsAPIClient is the client API for TtsAPI service.
@@ -194,7 +194,7 @@ func _TtsAPI_DownloadVoice_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TtsAPI_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "voicedock.extensions.tts.v1.TtsAPI",
+	ServiceName: "voicedock.core.tts.v1.TtsAPI",
 	HandlerType: (*TtsAPIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -213,5 +213,5 @@ var TtsAPI_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "voicedock/extensions/tts/v1/tts_api.proto",
+	Metadata: "voicedock/core/tts/v1/tts_api.proto",
 }

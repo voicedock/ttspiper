@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package voicedock.extensions.tts.v1;
+package voicedock.core.tts.v1;
 
-option csharp_namespace = "Voicedock.Extensions.Tts.V1";
-option go_package = "voicedock/extensions/tts/v1;ttsv1";
+option csharp_namespace = "Voicedock.Core.Tts.V1";
+option go_package = "voicedock/core/tts/v1;ttsv1";
 option java_multiple_files = true;
 option java_outer_classname = "TtsProto";
-option java_package = "com.voicedock.extensions.tts.v1";
-option objc_class_prefix = "VET";
-option php_namespace = "Voicedock\\Extensions\\Tts\\V1";
+option java_package = "com.voicedock.core.tts.v1";
+option objc_class_prefix = "VCT";
+option php_namespace = "Voicedock\\Core\\Tts\\V1";
 
 // Voice info.
 message Voice {

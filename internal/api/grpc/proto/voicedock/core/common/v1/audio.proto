@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package voicedock.core.common.v1;
+
+option csharp_namespace = "Voicedock.Core.Common.V1";
+option go_package = "voicedock/core/common/v1;commonv1";
+option java_multiple_files = true;
+option java_outer_classname = "CommonProto";
+option java_package = "com.voicedock.core.common.v1";
+option objc_class_prefix = "VCC";
+option php_namespace = "Voicedock\\Core\\Common\\V1";
+
+// Container for raw PCM audio.
+message AudioContainer {
+  // 16 bit raw PCM (is the format of 16 bits integers little endian)
+  bytes data = 1;
+  // Sample rate of audio data
+  int32 sample_rate = 2;
+  // Audio channels
+  int32 channels = 3;
+}
