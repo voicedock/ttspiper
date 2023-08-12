@@ -2,13 +2,15 @@
   {
     "lang": "ru",
     "speaker": "Irina",
-    "download_url": "https://github.com/rhasspy/piper/releases/download/v0.0.2/voice-ru-irinia-medium.tar.gz",
+    "download_onnx_url": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ru/ru_RU/irina/medium/ru_RU-irina-medium.onnx",
+    "download_onnx_json_url": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ru/ru_RU/irina/medium/ru_RU-irina-medium.onnx.json",
     "license": "GPLv2"
   },
   {
     "lang": "en-us",
     "speaker": "Ryan",
-    "download_url": "https://github.com/rhasspy/piper/releases/download/v0.0.2/voice-en-us-ryan-high.tar.gz",
+    "download_onnx_url": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx",
+    "download_onnx_json_url": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx.json",
     "license": "CC BY-NC-SA 4.0"
   }
 ]

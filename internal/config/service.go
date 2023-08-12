@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 )
 
 type Service struct {
@@ -74,7 +75,20 @@ func (s *Service) Download(lang, speaker string) error {
 	}
 
 	outPath := filepath.Join(s.dataDir, lang, speaker)
-	err := s.downloader.Download(voice.VoiceConf.DownloadUrl, outPath)
+	onnxName := filepath.Base(voice.VoiceConf.DownloadOnnxUrl)
+	if !strings.HasSuffix(onnxName, ".onnx") {
+		onnxName = "model.onnx"
+	}
+	jsonName := filepath.Base(voice.VoiceConf.DownloadOnnxJsonUrl)
+	if !strings.HasSuffix(jsonName, ".onnx.json") {
+		onnxName = "model.onnx.json"
+	}
+
+	err := s.downloader.Download(voice.VoiceConf.DownloadOnnxUrl, filepath.Join(outPath, onnxName))
+	if err != nil {
+		return fmt.Errorf("failed to download voice: %w", err)
+	}
+	err = s.downloader.Download(voice.VoiceConf.DownloadOnnxJsonUrl, filepath.Join(outPath, jsonName))
 	if err != nil {
 		return fmt.Errorf("failed to download voice: %w", err)
 	}

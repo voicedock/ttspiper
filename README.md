@@ -34,22 +34,23 @@ See implementation in [proto file](https://github.com/voicedock/voicedock-specs/
 
 ## FAQ
 ### How to add a new language?
-1. Find voice from [sample page](https://rhasspy.github.io/piper-samples/)
-2. Copy link to download `tar.gz` voice file
+1. Find voice from [sample page](https://rhasspy.github.io/piper-samples/) or [Hugging Face](https://huggingface.co/rhasspy/piper-voices/tree/main).
+2. Copy link to download `*.onnx` and `*.onnx.json` voice file
 3. Add voice to [ttspiper.json](config%2Fttspiper.json) config:
    ```json
    {
      "lang": "lang_code",
      "speaker": "speaker_name",
-     "download_url": "download_url",
+     "download_onnx_url": "url *.onnx",
+     "download_onnx_json_url": "url *.onnx.json",
      "license": "license text to accept"
    }
     ```
 
 ### How to use preloaded voices?
-1. Add voice to [ttspiper.json](config%2Fttspiper.json) config (leave "download_url" blank to disable downloads).
-2. [Download](https://rhasspy.github.io/piper-samples/)
-3. Extract voice to directory `dataset/{lang}/{speaker}/` (replace `{lang}` to language code and `{speaker}` to speaker name from configuration file  `ttspiper.json`)
+1. Add voice to [ttspiper.json](config%2Fttspiper.json) config (leave "download_onnx_url" and "download_onnx_json_url" blank to disable downloads).
+2. [Download](https://rhasspy.github.io/piper-samples/) voice
+3. Save `*.onnx` and `*.onnx.json` voice file to directory `dataset/{lang}/{speaker}/` (replace `{lang}` to language code and `{speaker}` to speaker name from configuration file  `ttspiper.json`)
 
 
 ## CONTRIBUTING

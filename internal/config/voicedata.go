@@ -12,5 +12,5 @@ func (v *VoiceData) Downloaded() bool {
 }
 
 func (v *VoiceData) Downloadable() bool {
-	return v.VoiceConf.DownloadUrl != ""
+	return v.VoiceConf.DownloadOnnxUrl != "" && v.VoiceConf.DownloadOnnxJsonUrl != ""
 }

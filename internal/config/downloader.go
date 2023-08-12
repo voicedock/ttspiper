@@ -1,8 +1,6 @@
 package config
 
 import (
-	"archive/tar"
-	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,57 +18,30 @@ func NewDownloader() *Downloader {
 func (d *Downloader) Download(url, outPath string) error {
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Errorf("failed to download model: %w", err)
+		return fmt.Errorf("failed download: %w", err)
 	}
 	defer resp.Body.Close()
 
-	return d.extractFile(resp.Body, outPath)
+	return d.saveFile(resp.Body, outPath)
 }
 
-func (d *Downloader) extractFile(r io.Reader, outPath string) error {
-	decompressed, err := gzip.NewReader(r)
-	if err != nil {
-		return fmt.Errorf("failed to extract gzip: %w", err)
-	}
-
-	tarReader := tar.NewReader(decompressed)
-
-	err = os.MkdirAll(outPath, os.ModePerm)
-	if err != nil {
-		return fmt.Errorf("failed to create out directory: %w", err)
-	}
-
-	for {
-		header, err := tarReader.Next()
-		if err == io.EOF {
-			break
-		}
-
+func (d *Downloader) saveFile(r io.Reader, outPath string) error {
+	outDir := filepath.Dir(outPath)
+	if _, err := os.Stat(outDir); os.IsNotExist(err) {
+		err = os.MkdirAll(outDir, 0755)
 		if err != nil {
-			return fmt.Errorf("failed to untar file: %w", err)
-		}
-
-		fullPath := filepath.Join(outPath, header.Name)
-
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if err := os.Mkdir(fullPath, 0755); err != nil {
-				return fmt.Errorf("failed to create dir: %w", err)
-			}
-		case tar.TypeReg:
-			outFile, err := os.Create(fullPath)
-			if err != nil {
-				return fmt.Errorf("failed to create file: %w", err)
-			}
-			if _, err := io.Copy(outFile, tarReader); err != nil {
-				return fmt.Errorf("failed to write file: %w", err)
-			}
-			outFile.Close()
-
-		default:
-			return fmt.Errorf("uknown flag: %s in file %s", string(header.Typeflag), header.Name)
+			return fmt.Errorf("failed to create out directory: %w", err)
 		}
 	}
+
+	outFile, err := os.Create(outPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	if _, err := io.Copy(outFile, r); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+	outFile.Close()
 
 	return nil
 }
