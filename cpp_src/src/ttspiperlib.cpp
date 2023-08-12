@@ -10,13 +10,18 @@ extern "C" {
 
 void terminate()
 {
-    piper::terminate();
+    piper::PiperConfig piperConfig;
+    piperConfig.eSpeakDataPath = "/usr/share/espeak-ng-data";
+
+    piper::terminate(piperConfig);
 }
 
 void initialize()
 {
-    auto exePath = filesystem::canonical("/proc/self/exe");
-    piper::initialize(exePath.parent_path());
+    piper::PiperConfig piperConfig;
+    piperConfig.eSpeakDataPath = "/usr/share/espeak-ng-data";
+
+    piper::initialize(piperConfig);
 }
 
 void textToAudio(void* voice, char *text, int cbId)
@@ -37,8 +42,11 @@ void textToAudio(void* voice, char *text, int cbId)
 
     piper::Voice* vic = reinterpret_cast<piper::Voice*>(voice);
 
+    piper::PiperConfig piperConfig;
+    piperConfig.eSpeakDataPath = "/usr/share/espeak-ng-data";
 
     piper::textToAudio(
+        piperConfig,
         *vic,
         std::string (text),
         buf,
@@ -55,7 +63,10 @@ void* loadVoice(char *modelPath, char *modelConfigPath, int64_t *speakerId) {
         optSpeakerId = static_cast<int64_t>(*speakerId);
     }
 
-    piper::loadVoice(modelPath, modelConfigPath, *voice, optSpeakerId);
+    piper::PiperConfig piperConfig;
+    piperConfig.eSpeakDataPath = "/usr/share/espeak-ng-data";
+
+    piper::loadVoice(piperConfig, modelPath, modelConfigPath, *voice, optSpeakerId);
 
     return voice;
 }

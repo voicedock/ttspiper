@@ -2,19 +2,23 @@ cmake_minimum_required(VERSION 3.14)
 project(ttspiperlib
     VERSION 1.0.0
     DESCRIPTION "TTS piper lib"
-    LANGUAGES CXX)
+    LANGUAGES C CXX)
     
 #----------------------------------------------------------------------------------------------------------------------
 # general settings and options
 #----------------------------------------------------------------------------------------------------------------------
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra -Wl,-rpath,'$ORIGIN'")
+string(APPEND CMAKE_C_FLAGS " -Wall -Wextra")
 
 include(GNUInstallDirs)
 
 add_library(ttspiperlib SHARED
     src/ttspiperlib.cpp
+    src/piper.cpp
 )
 
 set_target_properties(ttspiperlib PROPERTIES VERSION ${PROJECT_VERSION})
@@ -23,25 +27,27 @@ set_target_properties(ttspiperlib PROPERTIES SOVERSION 1)
 #----------------------------------------------------------------------------------------------------------------------
 # ttspiperlib dependencies
 #----------------------------------------------------------------------------------------------------------------------
+set(PIPER_PHONEMIZE_ROOTDIR ${CMAKE_CURRENT_LIST_DIR}/lib/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR}/piper_phonemize)
 find_package(PkgConfig)
-pkg_check_modules(ESPEAK_NG REQUIRED espeak-ng<2)
-set(ONNXRUNTIME_ROOTDIR ${CMAKE_CURRENT_LIST_DIR}/lib/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
+pkg_check_modules(SPDLOG REQUIRED spdlog)
+
 target_link_libraries(ttspiperlib
+                      piper_phonemize
+                      espeak-ng
                       onnxruntime
                       pthread
-                      -static-libgcc -static-libstdc++
-                      ${ESPEAK_NG_LIBRARIES})
+                      ${SPDLOG_LIBRARIES}
+                      -static-libgcc -static-libstdc++)
 
 target_link_directories(ttspiperlib PRIVATE
-                        ${ESPEAK_NG_LIBRARY_DIRS}
-                        ${ONNXRUNTIME_ROOTDIR}/lib)
+                        ${PIPER_PHONEMIZE_ROOTDIR}/lib)
 
 target_include_directories(ttspiperlib PRIVATE
-                           ${ONNXRUNTIME_ROOTDIR}/include
-                           ${ESPEAK_NG_INCLUDE_DIRS})
+                           ${PIPER_PHONEMIZE_ROOTDIR}/include
+                           ${SPDLOG_INCLUDE_DIRS})
 
-target_compile_options(ttspiperlib PUBLIC
-                       ${ESPEAK_NG_CFLAGS_OTHER})
+target_compile_options(ttspiperlib PRIVATE
+                       ${SPDLOG_CFLAGS_OTHER})
 
 #----------------------------------------------------------------------------------------------------------------------
 # ttspiperlib sources

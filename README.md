@@ -10,7 +10,7 @@ Run docker container:
 docker run --rm \
   -v "$(pwd)/config:/data/config" \
   -v "$(pwd)/dataset:/data/dataset" \
-  -p 9997:9999 \
+  -p 9999:9999 \
   ghcr.io/voicedock/ttspiper:latest ttspiper
 ```
 

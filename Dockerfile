@@ -1,48 +1,7 @@
 FROM golang:1.20 as builder
 
-RUN apt update && apt install -y \
-        g++ \
-        automake \
-        cmake \
-        pkg-config \
-        libtool \
-        wget \
-        git && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /build
-
-ADD cpp_src/lib /build/lib
-RUN tar -xvf "lib/espeak-ng-1.52-patched.tar.gz" -C "./" && \
-    cd espeak-ng && \
-    ./autogen.sh && \
-    ./configure \
-        --without-pcaudiolib \
-        --without-klatt \
-        --without-speechplayer \
-        --without-mbrola \
-        --without-sonic \
-        --with-extdict-cmn \
-        --prefix=/usr && \
-    make -j8 src/espeak-ng src/speak-ng && \
-    make && \
-    make install
-
-RUN export ONNX_DIR="./lib/Linux-$(uname -m)" && \
-    export ONNX_FILENAME="onnxruntime-linux-x64-1.14.1.tgz" && \
-    wget "https://github.com/microsoft/onnxruntime/releases/download/v1.14.1/${ONNX_FILENAME}" && \
-    mkdir -p "${ONNX_DIR}" && \
-    tar -C "${ONNX_DIR}" \
-        --strip-components 1 \
-        -xvf "${ONNX_FILENAME}"
-
-ADD cpp_src/include /build/include
-ADD cpp_src/src /build/src
-ADD cpp_src/CMakeLists.txt /build/CMakeLists.txt
-
-RUN mkdir build && cd build/ && cmake .. && make install
-
-FROM golang:1.20 as gobuilder
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 RUN apt update && apt install -y \
         g++ \
@@ -55,30 +14,59 @@ RUN apt update && apt install -y \
         git && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
+WORKDIR /build
 
+ARG SPDLOG_VERSION="1.11.0"
+RUN curl -L "https://github.com/gabime/spdlog/archive/refs/tags/v${SPDLOG_VERSION}.tar.gz" | \
+    tar -xzvf - && \
+    mkdir -p "spdlog-${SPDLOG_VERSION}/build" && \
+    cd "spdlog-${SPDLOG_VERSION}/build" && \
+    cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..  && \
+    make -j8 && \
+    cmake --install . --prefix /usr
+
+# Use pre-compiled Piper phonemization library (includes onnxruntime)
+ARG PIPER_PHONEMIZE_VERSION='1.1.0'
+RUN mkdir -p "lib/Linux-$(uname -m)/piper_phonemize" && \
+    curl -L "https://github.com/rhasspy/piper-phonemize/releases/download/v${PIPER_PHONEMIZE_VERSION}/libpiper_phonemize-${TARGETARCH}${TARGETVARIANT}.tar.gz" | \
+        tar -C "lib/Linux-$(uname -m)/piper_phonemize" -xzvf -
+
+ADD cpp_src/include /build/include
+ADD cpp_src/src /build/src
+ADD cpp_src/CMakeLists.txt /build/CMakeLists.txt
 ADD . /usr/src/app
 
-COPY --from=builder /usr/local/lib/libttspiperlib.so /usr/local/lib/
-COPY --from=builder /usr/local/include/ttspiperlib.h /usr/local/include
-COPY --from=builder /usr/lib/libespea* /usr/lib/
-COPY --from=builder /build/lib/Linux-x86_64/lib/libonnxruntime* /usr/local/lib/
+RUN mkdir -p build && \
+    cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make install && \
+    cd .. && \
+    mkdir /usr/src/app/lib && \
+    export PP_DIR="lib/Linux-$(uname -m)/piper_phonemize" && \
+    cp -aR ${PP_DIR}/lib/espeak-ng-data ${PP_DIR}/lib/*.so* /usr/local/lib/libttspiperlib* /usr/src/app/lib/
 
-RUN go build -o ./ttspiper ./cmd/ttspiper
+RUN cd /usr/src/app && \
+    cp ./cpp_src/include/ttspiperlib/ttspiperlib.h /usr/local/include && \
+    export CGO_LDFLAGS="-L/usr/src/app/lib -Wl,-rpath -Wl,\$ORIGIN/../lib" && \
+    export CGO_CFLAGS="-I/usr/local/include" && \
+    rm -rf ~/.cache/go-build && \
+    go build -o ./ttspiper ./cmd/ttspiper && \
+    tar -czf lib.tar.gz lib/
 
 FROM debian:12
+
+WORKDIR /usr/src/app
 
 RUN apt update && \
     apt install -y ca-certificates && \
     update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /build/lib/Linux-x86_64/lib/libonnxruntime* /usr/local/lib/
-COPY --from=builder /usr/lib/libespea* /usr/lib/
-COPY --from=builder /usr/local/lib/libttspiperlib.so /usr/local/lib/
-COPY --from=builder /usr/share/espeak-ng-data /usr/share/espeak-ng-data
-COPY --from=gobuilder /usr/src/app/ttspiper /usr/local/bin/ttspiper
+COPY --from=builder /usr/src/app/lib.tar.gz ./
+COPY --from=builder /usr/src/app/ttspiper /usr/src/app/ttspiper
 
-RUN ldconfig
+RUN tar -xzf lib.tar.gz && mv ./lib/espeak-ng-data /usr/share/espeak-ng-data
+
+ENV PATH=${PATH}:/usr/src/app/
 
 CMD ["ttspiper"]

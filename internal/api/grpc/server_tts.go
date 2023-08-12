@@ -14,8 +14,8 @@ import (
 )
 
 /*
-#cgo CFLAGS: -I/usr/local/include/ttspiperlib
-#cgo LDFLAGS: -L/usr/local/lib -lttspiperlib -Wl,-rpath=/usr/local/lib
+#cgo CFLAGS: -I/usr/local/include
+#cgo LDFLAGS: -L/usr/src/app/lib -lttspiperlib -Wl,-rpath=/usr/src/app/lib
 #include "ttspiperlib.h"
 */
 import "C"
